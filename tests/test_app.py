@@ -113,3 +113,19 @@ def test_teacher_exports_are_logged(fresh_app_state):
 
     logs = services.list_audit_logs(teacher_account)
     assert any(log.action == AuditAction.EXPORT for log in logs)
+
+
+def test_web_login_and_student_dashboard(fresh_app_state):
+    from app import web
+
+    importlib.reload(web)
+
+    session = web.SessionData()
+    login_html = web.render_login_page(session)
+    assert "登录" in login_html
+
+    login = auth.authenticate("s_s001", "Pass@123")
+    session.token = login.token
+
+    student_page = web.render_student_page(session)
+    assert "我的成绩" in student_page
